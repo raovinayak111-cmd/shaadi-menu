@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wedding Menu Maker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Mukta:wght@400;500;600;700&family=Rozha+One&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --maroon:#7a1420; --maroon-d:#540b14; --gold:#c4922a; --gold-l:#f1dfae;
+    --cream:#f8f1e3; --paper:#fffdf7; --ink:#2b1c15; --muted:#7c6b5c;
+    --line:#e6d9c2; --green:#2f6b3a; --radius:14px;
+    --display:'Rozha One','Noto Serif Devanagari','Kohinoor Devanagari',Georgia,serif;
+    --latin:'Marcellus',Georgia,'Times New Roman',serif;
+    --body:'Mukta','Noto Sans Devanagari','Kohinoor Devanagari','Nirmala UI',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  [hidden]{display:none!important}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:var(--body);background:var(--cream);color:var(--ink);line-height:1.45;padding-bottom:96px}
+  button,input,select{font:inherit;color:inherit}
+  button{cursor:pointer}
+
+  /* ---------- Brand header ---------- */
+  .brand{background:
+      radial-gradient(circle at 50% -40%, rgba(196,146,42,.35), transparent 60%),
+      linear-gradient(160deg,var(--maroon),var(--maroon-d));
+    color:#fff;text-align:center;padding:26px 16px 22px;border-bottom:3px solid var(--gold)}
+  .mono{width:64px;height:64px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;
+    border:2px solid var(--gold);outline:1px dashed rgba(241,223,174,.7);outline-offset:-7px;
+    font-family:var(--display);font-size:1.5rem;color:var(--gold-l);background:rgba(0,0,0,.18);overflow:hidden}
+  .mono img{width:100%;height:100%;object-fit:cover}
+  .brand h1{font-family:var(--display);font-weight:400;font-size:clamp(1.7rem,6vw,2.5rem);line-height:1.2}
+  .brand .en{font-family:var(--latin);letter-spacing:.22em;text-transform:uppercase;font-size:.78rem;color:var(--gold-l);margin-top:4px}
+  .brand .tag{font-size:.95rem;opacity:.9;margin-top:8px}
+  .brand .contact{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:4px 16px;margin-top:12px;
+    font-size:.86rem;background:rgba(0,0,0,.22);padding:6px 16px;border-radius:999px}
+
+  /* ---------- Toolbar ---------- */
+  .bar{position:sticky;top:0;z-index:20;background:rgba(255,253,247,.96);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line)}
+  .bar-in{max-width:860px;margin:0 auto;padding:10px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .seg{display:inline-flex;background:#efe5d2;border-radius:999px;padding:3px}
+  .seg button{border:0;background:transparent;padding:7px 14px;border-radius:999px;font-weight:600;font-size:.88rem;color:var(--muted)}
+  .seg button.on{background:var(--maroon);color:#fff}
+  .seg.small button{padding:6px 11px;font-size:.82rem}
+
+  .wrap{max-width:860px;margin:0 auto;padding:16px 14px}
+
+  /* ---------- Cards ---------- */
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px;
+    box-shadow:0 2px 10px rgba(84,11,20,.05)}
+  .card h2{font-family:var(--display);font-weight:400;color:var(--maroon);font-size:1.15rem;margin-bottom:12px}
+  .card h2 small{font-family:var(--latin);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-left:8px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .field label{display:block;font-size:.76rem;color:var(--muted);margin-bottom:3px}
+  .field input,.meal select,.meal input{width:100%;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 10px;outline:none;min-width:0}
+  .field input:focus,.meal select:focus,.meal input:focus,.pk-search:focus,.pk-custom input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,146,42,.18)}
+
+  /* ---------- Meal card ---------- */
+  .meal{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;
+    box-shadow:0 2px 10px rgba(84,11,20,.05)}
+  .meal-head{background:linear-gradient(180deg,#fbf0d6,#f6e7c2);border-bottom:2px solid var(--gold);padding:12px;display:flex;gap:10px;align-items:flex-start}
+  .meal-no{flex:none;width:30px;height:30px;border-radius:50%;background:var(--maroon);color:#fff;display:grid;place-items:center;font-weight:700;font-size:.9rem;margin-top:4px}
+  .meal-fields{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;min-width:0}
+  .guests{display:flex;align-items:center;gap:6px;background:var(--maroon);color:#fff;border-radius:9px;padding:0 10px}
+  .guests input{background:transparent!important;border:0!important;color:#fff;font-weight:700;width:70px!important;padding:9px 0!important;box-shadow:none!important}
+  .guests input::placeholder{color:rgba(255,255,255,.6)}
+  .guests span{font-size:.78rem;white-space:nowrap;opacity:.9}
+  .icon-btn{flex:none;border:0;background:transparent;color:#a89684;font-size:1.05rem;width:32px;height:32px;border-radius:8px}
+  .icon-btn:hover{background:#fbe6e6;color:#b3261e}
+  .meal-body{padding:12px 14px 4px}
+  .empty{color:var(--muted);font-style:italic;font-size:.92rem;padding:6px 0 10px}
+  .grp{margin-bottom:12px}
+  .grp h4{font-family:var(--latin);font-weight:400;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;
+    display:flex;align-items:center;gap:8px}
+  .grp h4::after{content:"";flex:1;height:1px;background:var(--line)}
+  .grp h4 b{font-family:var(--body);font-weight:600;letter-spacing:0;text-transform:none;font-size:.86rem;color:var(--maroon)}
+  .chips{list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+  .chips li{display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 4px 4px 12px;font-size:.92rem}
+  .chips .e{color:var(--muted);font-size:.8rem;margin-left:5px}
+  .chips button{border:0;background:transparent;color:#b9a892;width:24px;height:24px;border-radius:50%;font-size:.8rem}
+  .chips button:hover{background:#fbe6e6;color:#b3261e}
+  .add-dishes{display:block;width:calc(100% - 28px);margin:6px 14px 14px;border:1.5px dashed var(--gold);background:#fffaf0;color:var(--maroon);
+    font-weight:600;padding:11px;border-radius:10px}
+  .add-dishes:hover{background:#fdf1d5}
+  .add-meal{width:100%;border:0;background:var(--maroon);color:#fff;font-weight:600;padding:13px;border-radius:12px;font-size:1rem}
+  .add-meal:hover{background:var(--maroon-d)}
+  .link-btn{border:0;background:transparent;color:var(--muted);text-decoration:underline;font-size:.85rem;margin-top:14px}
+  .hint{font-size:.84rem;color:var(--muted);text-align:center;margin-top:10px}
+
+  /* ---------- Bottom actions ---------- */
+  .actions{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--paper);border-top:1px solid var(--line);
+    box-shadow:0 -6px 20px rgba(84,11,20,.08)}
+  .actions-in{max-width:860px;margin:0 auto;padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;align-items:center}
+  .count{flex:1;font-size:.84rem;color:var(--muted);line-height:1.2}
+  .count b{display:block;font-size:1.05rem;color:var(--maroon)}
+  .btn{border:0;border-radius:10px;padding:11px 14px;font-weight:600;font-size:.9rem;white-space:nowrap}
+  .btn-ghost{background:#efe5d2;color:var(--ink)}
+  .btn-wa{background:var(--green);color:#fff}
+  .btn-gold{background:var(--gold);color:#2e1c00}
+
+  /* ---------- Dish picker ---------- */
+  .picker{position:fixed;inset:0;z-index:50;background:rgba(43,28,21,.55);display:flex;align-items:flex-end;justify-content:center}
+  .pk{background:var(--paper);width:100%;max-width:720px;height:92vh;border-radius:18px 18px 0 0;display:flex;flex-direction:column;overflow:hidden}
+  @media(min-width:760px){.picker{align-items:center}.pk{height:84vh;border-radius:18px}}
+  .pk-top{padding:14px 14px 10px;border-bottom:1px solid var(--line)}
+  .pk-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .pk-title h3{font-family:var(--display);font-weight:400;color:var(--maroon);font-size:1.15rem}
+  .pk-search{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;outline:none;background:#fff}
+  .pk-cats{display:flex;gap:6px;overflow-x:auto;padding:10px 14px;border-bottom:1px solid var(--line);scrollbar-width:none}
+  .pk-cats::-webkit-scrollbar{display:none}
+  .pk-cats button{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 13px;font-size:.86rem;font-weight:500}
+  .pk-cats button.on{background:var(--maroon);border-color:var(--maroon);color:#fff}
+  .pk-list{flex:1;overflow-y:auto;padding:8px 14px}
+  .pk-sec{font-family:var(--latin);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:12px 0 6px}
+  .dish{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:6px}
+  .dish .tick{flex:none;width:22px;height:22px;border-radius:6px;border:1.5px solid #cdbda3;display:grid;place-items:center;color:transparent;font-size:.8rem;font-weight:700}
+  .dish.on{border-color:var(--green);background:#f1f8f1}
+  .dish.on .tick{background:var(--green);border-color:var(--green);color:#fff}
+  .dish .h{font-weight:500}
+  .dish .e{display:block;font-size:.8rem;color:var(--muted)}
+  .pk-custom{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--line);background:#fffaf0}
+  .pk-custom input{flex:1;border:1px dashed #cdbda3;border-radius:10px;padding:10px 12px;outline:none;background:#fff;min-width:0}
+  .pk-foot{padding:10px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+  .pk-foot .btn{width:100%;background:var(--maroon);color:#fff;padding:13px;font-size:1rem}
+
+  /* ---------- Final menu sheet ---------- */
+  #sheet{max-width:820px;margin:0 auto;background:var(--paper);padding:10px;box-shadow:0 8px 30px rgba(84,11,20,.12)}
+  .sh{border:2px solid var(--maroon);outline:1px solid var(--gold);outline-offset:-7px;padding:34px 28px 26px;position:relative;
+    -webkit-box-decoration-break:clone;box-decoration-break:clone;
+    background:radial-gradient(circle at 50% 0, rgba(241,223,174,.45), transparent 46%)}
+  .sh::before,.sh::after{content:"❖";position:absolute;color:var(--gold);font-size:1rem;top:12px}
+  .sh::before{left:14px}.sh::after{right:14px}
+  .sh-head{text-align:center}
+  .sh-head .mono{background:var(--maroon);width:72px;height:72px;font-size:1.7rem}
+  .sh-head h1{font-family:var(--display);font-weight:400;color:var(--maroon);font-size:2.2rem;line-height:1.2}
+  .sh-head .en{font-family:var(--latin);letter-spacing:.24em;text-transform:uppercase;font-size:.8rem;color:var(--gold);margin-top:2px}
+  .sh-head .tag{color:var(--muted);font-size:.92rem;margin-top:6px}
+  .sh-rule{display:flex;align-items:center;gap:12px;margin:18px auto 14px;max-width:460px;color:var(--gold)}
+  .sh-rule::before,.sh-rule::after{content:"";flex:1;height:1px;background:var(--gold)}
+  .sh-rule span{font-family:var(--latin);letter-spacing:.2em;text-transform:uppercase;font-size:.78rem;color:var(--maroon);white-space:nowrap}
+  .sh-event{text-align:center;margin-bottom:20px}
+  .sh-event .couple{font-family:var(--display);font-size:1.6rem;color:var(--ink)}
+  .sh-event .meta{color:var(--muted);font-size:.95rem;margin-top:2px}
+  .sh-meal{margin-top:18px}
+  .sh-meal-head{background:var(--maroon);color:#fff;border-radius:6px;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+    border-bottom:2px solid var(--gold);break-after:avoid}
+  .sh-meal-head .t{font-family:var(--display);font-size:1.12rem;font-weight:400}
+  .sh-meal-head .m{font-size:.86rem;color:var(--gold-l);white-space:nowrap}
+  .sh-cols{columns:3;column-gap:26px;padding:12px 6px 0}
+  .sh-grp{break-inside:avoid;margin-bottom:12px}
+  .sh-grp h4{font-family:var(--latin);font-weight:400;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);
+    border-bottom:1px solid var(--line);padding-bottom:3px;margin-bottom:5px}
+  .sh-grp h4 b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:.86rem;color:var(--maroon);font-weight:600}
+  .sh-grp ul{list-style:none}
+  .sh-grp li{font-size:.95rem;padding:1.5px 0 1.5px 14px;position:relative;line-height:1.35}
+  .sh-grp li::before{content:"";position:absolute;left:2px;top:.62em;width:5px;height:5px;background:var(--gold);transform:rotate(45deg)}
+  .sh-grp li .e{color:var(--muted);font-size:.8rem;display:block;line-height:1.2}
+  .sh-foot{margin-top:22px;padding-top:12px;border-top:1px solid var(--gold);text-align:center;font-size:.9rem;color:var(--ink)}
+  .sh-foot b{color:var(--maroon)}
+  .sh-foot small{display:block;color:var(--muted);margin-top:3px}
+  .sh-empty{text-align:center;color:var(--muted);padding:30px 0;font-style:italic}
+
+  @media(max-width:640px){
+    .grid{grid-template-columns:1fr}
+    .sh{padding:28px 16px 20px}.sh-cols{columns:2;column-gap:18px}
+    .sh-head h1{font-size:1.7rem}
+    .btn{padding:11px 11px;font-size:.84rem}
+    .btn .lbl{display:none}
+  }
+  @media(max-width:400px){.sh-cols{columns:1}}
+
+  @page{size:A4;margin:9mm}
+  @media print{
+    *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    body{background:#fff;padding:0}
+    .brand,.bar,#edit,.actions,.picker{display:none!important}
+    #preview{display:block!important;padding:0;max-width:none}
+    #sheet{box-shadow:none;max-width:none;padding:0}
+    .sh-cols{columns:3}
+  }
+</style>
+</head>
+<body>
+
+<header class="brand" id="brand"></header>
+
+<nav class="bar"><div class="bar-in">
+  <div class="seg" id="tabs">
+    <button data-view="edit" class="on">मेनू बनाएं · Edit</button>
+    <button data-view="preview">फाइनल मेनू · Preview</button>
+  </div>
+  <div class="seg small" id="langs">
+    <button data-lang="both">दोनों</button>
+    <button data-lang="hi">हिंदी</button>
+    <button data-lang="en">English</button>
+  </div>
+</div></nav>
+
+<main class="wrap" id="edit">
+  <section class="card">
+    <h2>कार्यक्रम की जानकारी <small>Event details</small></h2>
+    <div class="grid">
+      <div class="field"><label>वर-वधू · Couple</label><input data-ev="couple" placeholder="आरव ♥ मीरा"></div>
+      <div class="field"><label>परिवार · Host family</label><input data-ev="host" placeholder="शर्मा परिवार"></div>
+      <div class="field"><label>स्थान · Venue</label><input data-ev="venue" placeholder="Venue name"></div>
+      <div class="field"><label>शहर · City</label><input data-ev="city" placeholder="City"></div>
+    </div>
+  </section>
+
+  <div id="meals"></div>
+
+  <button class="add-meal" data-act="add-meal">+ नया भोजन जोड़ें · Add a meal</button>
+  <p class="hint">हर भोजन में “डिश चुनें” दबाएं, लिस्ट से टिक करें। अंत में PDF बनाएं या WhatsApp पर भेजें।<br>
+  Tap “Choose dishes” in each meal, tick from the list, then make a PDF or send on WhatsApp.</p>
+  <p style="text-align:center"><button class="link-btn" data-act="reset">नया खाली मेनू शुरू करें · Start a new blank menu</button></p>
+</main>
+
+<main class="wrap" id="preview" hidden><div id="sheet"></div></main>
+
+<footer class="actions"><div class="actions-in">
+  <div class="count"><b id="cnt">0</b>डिश · dishes</div>
+  <button class="btn btn-ghost" data-act="save-copy" title="Save a copy of this menu as a file">💾 <span class="lbl">Save file</span></button>
+  <button class="btn btn-wa" data-act="wa">WhatsApp <span class="lbl">पर भेजें</span></button>
+  <button class="btn btn-gold" data-act="pdf">PDF <span class="lbl">बनाएं</span></button>
+</div></footer>
+
+<div class="picker" id="picker" hidden>
+  <div class="pk">
+    <div class="pk-top">
+      <div class="pk-title"><h3 id="pk-title">डिश चुनें</h3><button class="icon-btn" data-act="pk-close">✕</button></div>
+      <input class="pk-search" id="pk-q" type="search" placeholder="खोजें · Search (paneer, हलवा…)" autocomplete="off">
+    </div>
+    <div class="pk-cats" id="pk-cats"></div>
+    <div class="pk-list" id="pk-list"></div>
+    <div class="pk-custom">
+      <input id="pk-new" placeholder="लिस्ट में नहीं है? अपनी डिश लिखें · Add your own dish" autocomplete="off">
+      <button class="btn btn-gold" data-act="pk-add">जोड़ें</button>
+    </div>
+    <div class="pk-foot"><button class="btn" data-act="pk-close" id="pk-done">हो गया · Done</button></div>
+  </div>
+</div>
+
+<script id="embedded-state" type="application/json">null</script>
+
+<script>
+/* =====================================================================
+   SETUP BLOCK — change only this part for each caterer.
+   ===================================================================== */
+const CONFIG = {
+  caterer: {
+    nameHi: 'शुभ भोज कैटरर्स',                 // placeholder name
+    nameEn: 'Shubh Bhoj Caterers',
+    taglineHi: 'स्वाद और परंपरा, हर शुभ अवसर पर',
+    taglineEn: 'Taste and tradition for every celebration',
+    city: 'आपका शहर · Your City',
+    phones: ['98XXX XXXXX', '97XXX XXXXX'],     // shown on the menu
+    whatsapp: '',                               // 10-digit number that receives the menu; blank = customer picks the chat
+    logo: '',                                   // image link or data URI; blank = initials badge
+    initials: 'शु'
+  },
+  functions: [
+    ['हल्दी','Haldi'], ['मेहंदी','Mehendi'], ['संगीत','Sangeet'], ['बारात स्वागत','Baraat Welcome'],
+    ['विवाह','Wedding'], ['रिसेप्शन','Reception'], ['विदाई','Vidai']
+  ],
+  mealTypes: [
+    ['नाश्ता','Breakfast'], ['दोपहर का भोजन','Lunch'], ['शाम का नाश्ता','Hi-Tea'], ['रात्रि भोज','Dinner']
+  ],
+  categories: [
+    { key:'welcome', hi:'स्वागत पेय व सूप', en:'Welcome Drinks & Soups', dishes:[
+      ['जलजीरा','Jaljeera'],['केसर ठंडाई','Kesar Thandai'],['आम पन्ना','Aam Panna'],['फ्रूट पंच','Fruit Punch'],
+      ['मसाला छाछ','Masala Chaas'],['गुलाब शरबत','Rose Sharbat'],['ब्लू लगून मॉकटेल','Blue Lagoon Mocktail'],
+      ['नारियल पानी','Coconut Water'],['टमाटर सूप','Tomato Soup'],['मनचाऊ सूप','Manchow Soup']]},
+    { key:'starters', hi:'स्टार्टर', en:'Starters', dishes:[
+      ['पनीर टिक्का','Paneer Tikka'],['हरा भरा कबाब','Hara Bhara Kabab'],['दही के कबाब','Dahi Kabab'],
+      ['वेज स्प्रिंग रोल','Veg Spring Roll'],['मिर्ची बड़ा','Mirchi Vada'],['प्याज़ कचौरी','Pyaaz Kachori'],
+      ['मूंग दाल पकौड़ी','Moong Dal Pakodi'],['पनीर पकोड़ा','Paneer Pakoda'],['क्रिस्पी कॉर्न','Crispy Corn'],
+      ['चीज़ बॉल्स','Cheese Balls'],['मटर रोल','Matar Roll']]},
+    { key:'chaat', hi:'चाट व लाइव काउंटर', en:'Chaat & Live Counters', dishes:[
+      ['पानी पताशा','Pani Patasha'],['आलू टिक्की चाट','Aloo Tikki Chaat'],['राज कचौरी','Raj Kachori'],
+      ['दही बड़ा','Dahi Vada'],['पालक पत्ता चाट','Palak Patta Chaat'],['भेलपुरी','Bhel Puri'],['पाव भाजी','Pav Bhaji'],
+      ['छोले भटूरे','Chole Bhature'],['डोसा काउंटर','Dosa Counter'],['मूंग दाल चीला','Moong Dal Chilla'],
+      ['तवा सब्ज़ी काउंटर','Tawa Sabzi Counter'],['पास्ता काउंटर','Pasta Counter'],['चाउमीन','Chowmein'],['मिनी पिज़्ज़ा','Mini Pizza']]},
+    { key:'sabzi', hi:'सब्ज़ी', en:'Main Course', dishes:[
+      ['पनीर बटर मसाला','Paneer Butter Masala'],['शाही पनीर','Shahi Paneer'],['कड़ाही पनीर','Kadai Paneer'],
+      ['मटर पनीर','Matar Paneer'],['पालक पनीर','Palak Paneer'],['मलाई कोफ्ता','Malai Kofta'],['मिक्स वेज','Mix Veg'],
+      ['दम आलू','Dum Aloo'],['काजू करी','Kaju Curry'],['सेव टमाटर','Sev Tamatar'],['भिंडी मसाला','Bhindi Masala'],
+      ['नवरत्न कोरमा','Navratan Korma']]},
+    { key:'rajasthani', hi:'राजस्थानी विशेष', en:'Rajasthani Specials', dishes:[
+      ['दाल बाटी चूरमा','Dal Baati Churma'],['गट्टे की सब्ज़ी','Gatte ki Sabzi'],['केर सांगरी','Ker Sangri'],
+      ['पंचमेल दाल','Panchmel Dal'],['कच्ची हल्दी की सब्ज़ी','Kacchi Haldi Sabzi'],['बेसन चक्की','Besan Chakki'],
+      ['मिर्ची के टिपोरे','Mirchi ke Tipore'],['लहसुन की चटनी','Lehsun Chutney'],['बाजरे का खीचड़ा','Bajra Khichda']]},
+    { key:'dal', hi:'दाल व कढ़ी', en:'Dal & Kadhi', dishes:[
+      ['दाल फ्राई','Dal Fry'],['दाल मखनी','Dal Makhani'],['दाल तड़का','Dal Tadka'],['कढ़ी पकोड़ा','Kadhi Pakoda'],
+      ['छोले','Chole'],['राजमा','Rajma']]},
+    { key:'roti', hi:'रोटी', en:'Breads', dishes:[
+      ['तवा रोटी','Tawa Roti'],['तंदूरी रोटी','Tandoori Roti'],['बटर नान','Butter Naan'],['गार्लिक नान','Garlic Naan'],
+      ['लच्छा पराठा','Lachha Paratha'],['मिस्सी रोटी','Missi Roti'],['पूड़ी','Poori'],['बाजरे की रोटी','Bajra Roti'],
+      ['मक्के की रोटी','Makki Roti']]},
+    { key:'rice', hi:'चावल', en:'Rice', dishes:[
+      ['जीरा राइस','Jeera Rice'],['वेज पुलाव','Veg Pulao'],['मटर पुलाव','Matar Pulao'],['वेज बिरयानी','Veg Biryani'],
+      ['सादा चावल','Steamed Rice'],['घी खिचड़ी','Ghee Khichdi']]},
+    { key:'sides', hi:'सलाद, रायता व पापड़', en:'Salad, Raita & Papad', dishes:[
+      ['ग्रीन सलाद','Green Salad'],['बूंदी रायता','Boondi Raita'],['फ्रूट रायता','Fruit Raita'],['पापड़','Papad'],
+      ['अचार','Pickle'],['हरी चटनी','Green Chutney'],['मिर्ची फ्राई','Fried Chillies'],['मूंगफली मसाला','Peanut Masala']]},
+    { key:'sweets', hi:'मिठाई', en:'Sweets', dishes:[
+      ['गुलाब जामुन','Gulab Jamun'],['मूंग दाल हलवा','Moong Dal Halwa'],['गाजर का हलवा','Gajar Halwa'],['रसमलाई','Rasmalai'],
+      ['मालपुआ रबड़ी','Malpua Rabdi'],['केसरिया जलेबी','Kesar Jalebi'],['घेवर','Ghevar'],['काजू कतली','Kaju Katli'],
+      ['रसगुल्ला','Rasgulla'],['फ्रूट क्रीम','Fruit Cream'],['श्रीखंड','Shrikhand'],['कुल्फी','Kulfi'],['आइसक्रीम','Ice Cream']]},
+    { key:'breakfast', hi:'नाश्ता', en:'Breakfast Items', dishes:[
+      ['पोहा','Poha'],['आलू पराठा','Aloo Paratha'],['मेथी पराठा','Methi Paratha'],['इडली सांभर','Idli Sambar'],
+      ['वड़ा सांभर','Vada Sambar'],['उपमा','Upma'],['ब्रेड सैंडविच','Bread Sandwich'],['कचौरी','Kachori'],
+      ['समोसा','Samosa'],['ब्रेड पकोड़ा','Bread Pakoda']]},
+    { key:'beverages', hi:'चाय, कॉफ़ी व अन्य', en:'Tea, Coffee & More', dishes:[
+      ['मसाला चाय','Masala Chai'],['कॉफ़ी','Coffee'],['केसर दूध','Kesar Milk'],['कुल्हड़ दूध','Kulhad Milk'],
+      ['मिनरल वाटर','Mineral Water'],['पान','Paan'],['मुखवास','Mukhwas']]}
+  ],
+  /* Sample menu shown the first time the file is opened. Numbers are positions in the lists above. */
+  sample: {
+    event: { couple:'आरव ♥ मीरा', host:'शर्मा परिवार', venue:'Venue name', city:'Your City' },
+    meals: [
+      { fn:0, type:1, date:'2027-02-11', guests:'250', picks:{ welcome:[0,4], rajasthani:[0,1,2], sabzi:[0,6], roti:[0,6], rice:[0], sides:[0,1,3], sweets:[1,5] } },
+      { fn:2, type:3, date:'2027-02-11', guests:'400', picks:{ welcome:[1,3,8], starters:[0,1,8], chaat:[0,1,4,8], sabzi:[1,5,9], dal:[1], roti:[1,2,4], rice:[1], sides:[0,2,3,4], sweets:[0,3,11] } },
+      { fn:4, type:3, date:'2027-02-12', guests:'800', picks:{ welcome:[0,1,6,9], starters:[0,2,3,9], chaat:[0,2,3,6,10,11], sabzi:[0,2,5,8,11], rajasthani:[0,1,2], dal:[0,1], roti:[1,2,4,5,6], rice:[0,3], sides:[0,1,3,4,5], sweets:[1,4,6,7,12], beverages:[1,3,5] } }
+    ]
+  }
+};
+/* ======================= end of setup block ======================= */
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const KEY = 'wedding-menu:' + CONFIG.caterer.nameEn;
+const CATS = [...CONFIG.categories, { key:'other', hi:'अन्य', en:'Others', dishes:[] }];
+const uid = () => Math.random().toString(36).slice(2, 9);
+
+let state, view = 'edit';
+let pk = { mealId:null, cat:CONFIG.categories[0].key, q:'' };
+
+/* ---------- state ---------- */
+function sampleState(){
+  const s = CONFIG.sample;
+  return { lang:'both', event:{...s.event}, meals: s.meals.map(m => ({
+    id:uid(), fn:m.fn, type:m.type, date:m.date, guests:m.guests,
+    items: Object.entries(m.picks).flatMap(([k, idxs]) => {
+      const c = CONFIG.categories.find(x => x.key === k);
+      return idxs.filter(i => c && c.dishes[i]).map(i => ({ c:k, hi:c.dishes[i][0], en:c.dishes[i][1] }));
+    })
+  }))};
+}
+function blankState(){
+  return { lang: state ? state.lang : 'both', event:{couple:'',host:'',venue:'',city:''},
+           meals:[{ id:uid(), fn:-1, type:1, date:'', guests:'', items:[] }] };
+}
+function load(){
+  let emb = null, loc = null;
+  try { emb = JSON.parse($('#embedded-state').textContent); } catch(e){}
+  try { loc = JSON.parse(localStorage.getItem(KEY)); } catch(e){}
+  const c = [emb, loc].filter(s => s && Array.isArray(s.meals)).sort((a,b) => (b.savedAt||0) - (a.savedAt||0));
+  return c[0] || sampleState();
+}
+function save(){
+  state.savedAt = Date.now();
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){}
+  $('#cnt').textContent = state.meals.reduce((n,m) => n + m.items.length, 0);
+}
+
+/* ---------- text helpers ---------- */
+function pair(hi, en, sep){            // label in the chosen language
+  if (state.lang === 'hi') return esc(hi);
+  if (state.lang === 'en') return esc(en);
+  return hi === en ? esc(hi) : esc(hi) + (sep || ' · ') + esc(en);
+}
+function dishHTML(it){
+  if (state.lang === 'hi') return esc(it.hi);
+  if (state.lang === 'en') return esc(it.en);
+  return it.hi === it.en ? esc(it.hi) : `${esc(it.hi)}<span class="e">${esc(it.en)}</span>`;
+}
+function dishText(it){
+  if (state.lang === 'hi') return it.hi;
+  if (state.lang === 'en') return it.en;
+  return it.hi === it.en ? it.hi : `${it.hi} (${it.en})`;
+}
+function mealTitle(m, html){
+  const f = CONFIG.functions[m.fn], t = CONFIG.mealTypes[m.type] || CONFIG.mealTypes[0];
+  const one = (a) => state.lang === 'en' ? a[1] : state.lang === 'hi' ? a[0] : `${a[0]} (${a[1]})`;
+  const s = (f ? one(f) + ' — ' : '') + one(t);
+  return html ? esc(s) : s;
+}
+function fmtDate(d){
+  if (!d) return '';
+  const x = new Date(d + 'T00:00:00');
+  return isNaN(x) ? '' : x.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+}
+function guestsLabel(m){
+  if (!m.guests || m.guests === '0') return '';
+  return state.lang === 'en' ? `${m.guests} guests` : state.lang === 'hi' ? `${m.guests} मेहमान` : `${m.guests} मेहमान · Guests`;
+}
+function grouped(m){
+  return CATS.map(c => ({ c, rows: m.items.map((it, idx) => ({ it, idx })).filter(r => r.it.c === c.key) })).filter(g => g.rows.length);
+}
+function monoHTML(){
+  const c = CONFIG.caterer;
+  return `<div class="mono">${c.logo ? `<img src="${esc(c.logo)}" alt="">` : esc(c.initials || c.nameEn.slice(0,1))}</div>`;
+}
+
+/* ---------- render: header ---------- */
+function renderBrand(){
+  const c = CONFIG.caterer;
+  document.title = `${c.nameEn} · Wedding Menu`;
+  $('#brand').innerHTML = `${monoHTML()}<h1>${esc(c.nameHi)}</h1><div class="en">${esc(c.nameEn)}</div>
+    <div class="tag">${esc(c.taglineHi)}</div>
+    <div class="contact"><span>📍 ${esc(c.city)}</span><span>📞 ${c.phones.map(esc).join(' · ')}</span></div>`;
+}
+
+/* ---------- render: editor ---------- */
+function renderMeals(){
+  const opt = (list, sel, none) => (none ? `<option value="-1"${sel < 0 ? ' selected' : ''}>— कार्यक्रम · Function —</option>` : '') +
+    list.map((x, i) => `<option value="${i}"${i === sel ? ' selected' : ''}>${esc(x[0])} · ${esc(x[1])}</option>`).join('');
+  $('#meals').innerHTML = state.meals.map((m, i) => {
+    const g = grouped(m);
+    return `<section class="meal" data-id="${m.id}">
+      <div class="meal-head">
+        <div class="meal-no">${i + 1}</div>
+        <div class="meal-fields">
+          <select data-f="fn" aria-label="Function">${opt(CONFIG.functions, m.fn, true)}</select>
+          <select data-f="type" aria-label="Meal">${opt(CONFIG.mealTypes, m.type)}</select>
+          <input type="date" data-f="date" value="${esc(m.date)}" aria-label="Date">
+          <label class="guests"><input type="number" inputmode="numeric" min="0" data-f="guests" value="${esc(m.guests)}" placeholder="0"><span>मेहमान · Guests</span></label>
+        </div>
+        <button class="icon-btn" data-act="del-meal" title="Remove this meal">✕</button>
+      </div>
+      <div class="meal-body">${g.length ? g.map(x => `
+        <div class="grp"><h4><b>${esc(x.c.hi)}</b>${esc(x.c.en)}</h4>
+          <ul class="chips">${x.rows.map(r => `<li><span>${dishHTML(r.it)}</span><button data-act="del-item" data-k="${r.idx}" title="Remove">✕</button></li>`).join('')}</ul>
+        </div>`).join('') : `<div class="empty">अभी कोई डिश नहीं चुनी · No dishes chosen yet</div>`}
+      </div>
+      <button class="add-dishes" data-act="pick">+ डिश चुनें · Choose dishes (${m.items.length})</button>
+    </section>`;
+  }).join('');
+  document.querySelectorAll('[data-ev]').forEach(el => { if (document.activeElement !== el) el.value = state.event[el.dataset.ev] || ''; });
+  document.querySelectorAll('#langs button').forEach(b => b.classList.toggle('on', b.dataset.lang === state.lang));
+}
+
+/* ---------- render: final sheet ---------- */
+function renderSheet(){
+  const c = CONFIG.caterer, e = state.event;
+  const meals = state.meals.filter(m => m.items.length);
+  const meta = [e.host, [e.venue, e.city].filter(Boolean).join(', ')].filter(Boolean).map(esc).join(' &nbsp;•&nbsp; ');
+  $('#sheet').innerHTML = `<div class="sh">
+    <div class="sh-head">${monoHTML()}<h1>${esc(c.nameHi)}</h1><div class="en">${esc(c.nameEn)}</div>
+      <div class="tag">${pair(c.taglineHi, c.taglineEn)}</div></div>
+    <div class="sh-rule"><span>${pair('विवाह भोज मेनू', 'Wedding Menu')}</span></div>
+    ${(e.couple || meta) ? `<div class="sh-event">${e.couple ? `<div class="couple">${esc(e.couple)}</div>` : ''}${meta ? `<div class="meta">${meta}</div>` : ''}</div>` : ''}
+    ${meals.length ? meals.map(m => `<section class="sh-meal">
+      <div class="sh-meal-head"><div class="t">${mealTitle(m, true)}</div>
+        <div class="m">${[fmtDate(m.date), guestsLabel(m)].filter(Boolean).map(esc).join(' &nbsp;|&nbsp; ')}</div></div>
+      <div class="sh-cols">${grouped(m).map(x => `<div class="sh-grp"><h4>${state.lang === 'en' ? esc(x.c.en) : `<b>${esc(x.c.hi)}</b>${state.lang === 'both' ? ' ' + esc(x.c.en) : ''}`}</h4>
+        <ul>${x.rows.map(r => `<li>${dishHTML(r.it)}</li>`).join('')}</ul></div>`).join('')}</div>
+    </section>`).join('') : `<div class="sh-empty">अभी कोई डिश नहीं चुनी गई · No dishes chosen yet</div>`}
+    <div class="sh-foot"><b>${esc(c.nameHi)}</b> &nbsp;•&nbsp; 📞 ${c.phones.map(esc).join(' · ')}<small>${esc(c.city)}</small></div>
+  </div>`;
+}
+
+function setView(v){
+  view = v;
+  if (v === 'preview') renderSheet();
+  $('#edit').hidden = v !== 'edit';
+  $('#preview').hidden = v !== 'preview';
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.view === v));
+  window.scrollTo(0, 0);
+}
+
+/* ---------- dish picker ---------- */
+const pkMeal = () => state.meals.find(m => m.id === pk.mealId);
+const has = (m, c, d) => m.items.findIndex(x => x.c === c && x.hi === d[0] && x.en === d[1]);
+function openPicker(id){
+  pk = { mealId:id, cat:pk.cat, q:'' };
+  $('#pk-q').value = ''; $('#pk-new').value = '';
+  $('#pk-title').textContent = mealTitle(pkMeal());
+  $('#picker').hidden = false; document.body.style.overflow = 'hidden';
+  renderPicker();
+}
+function closePicker(){
+  if ($('#picker').hidden) return;
+  $('#picker').hidden = true; document.body.style.overflow = '';
+  renderMeals();
+}
+function renderPicker(){
+  const m = pkMeal(); if (!m) return;
+  $('#pk-cats').innerHTML = CONFIG.categories.map(c => {
+    const n = m.items.filter(x => x.c === c.key).length;
+    return `<button data-act="pk-cat" data-c="${c.key}" class="${!pk.q && c.key === pk.cat ? 'on' : ''}">${esc(c.hi)}${n ? ` (${n})` : ''}</button>`;
+  }).join('');
+  const q = pk.q.trim().toLowerCase();
+  const secs = CONFIG.categories.map(c => ({ c, rows: c.dishes.map((d, i) => ({ d, i })).filter(r =>
+    q ? (r.d[0].includes(pk.q.trim()) || r.d[1].toLowerCase().includes(q)) : c.key === pk.cat) })).filter(s => s.rows.length);
+  const extra = m.items.filter(x => { const c = CONFIG.categories.find(k => k.key === x.c); return !c || !c.dishes.some(d => d[0] === x.hi && d[1] === x.en); })
+                       .filter(x => q ? (x.hi.toLowerCase().includes(q)) : x.c === pk.cat);
+  $('#pk-list').innerHTML = (secs.map(s => `<div class="pk-sec">${esc(s.c.hi)} · ${esc(s.c.en)}</div>` + s.rows.map(r => {
+      const on = has(m, s.c.key, r.d) > -1;
+      return `<button class="dish${on ? ' on' : ''}" data-act="pk-toggle" data-c="${s.c.key}" data-i="${r.i}">
+        <span class="tick">✓</span><span><span class="h">${esc(r.d[0])}</span><span class="e">${esc(r.d[1])}</span></span></button>`;
+    }).join('')).join('') +
+    (extra.length ? `<div class="pk-sec">आपकी जोड़ी हुई डिश · Added by you</div>` + extra.map(x =>
+      `<button class="dish on" data-act="pk-untoggle" data-k="${m.items.indexOf(x)}"><span class="tick">✓</span><span><span class="h">${esc(x.hi)}</span></span></button>`).join('') : ''))
+    || `<div class="empty" style="padding:20px 0">कोई डिश नहीं मिली। नीचे अपनी डिश लिखकर जोड़ें।<br>Nothing found. Type your own dish below.</div>`;
+  $('#pk-done').textContent = `हो गया · Done (${m.items.length})`;
+}
+
+/* ---------- output ---------- */
+function menuText(){
+  const c = CONFIG.caterer, e = state.event, L = [];
+  L.push(`*${c.nameHi}*`, state.lang === 'en' ? 'Wedding Menu' : 'विवाह भोज मेनू');
+  if (e.couple) L.push(e.couple);
+  const meta = [e.host, e.venue, e.city].filter(Boolean).join(', '); if (meta) L.push(meta);
+  state.meals.filter(m => m.items.length).forEach(m => {
+    L.push('', `*${mealTitle(m)}*`);
+    const sub = [fmtDate(m.date), guestsLabel(m)].filter(Boolean).join(' | '); if (sub) L.push(sub);
+    grouped(m).forEach(g => { L.push(`_${state.lang === 'en' ? g.c.en : g.c.hi}_`); g.rows.forEach(r => L.push('• ' + dishText(r.it))); });
+  });
+  return L.join('\n');
+}
+function sendWhatsApp(){
+  let d = String(CONFIG.caterer.whatsapp || '').replace(/\D/g, '');
+  if (d.length === 10) d = '91' + d;
+  window.open(`https://wa.me/${d.length >= 11 ? d : ''}?text=${encodeURIComponent(menuText())}`, '_blank');
+}
+function saveCopy(){
+  closePicker(); setView('edit'); save();
+  $('#embedded-state').textContent = JSON.stringify(state).replace(/</g, '\\u003c');
+  const blob = new Blob(['<!DOCTYPE html>\n' + document.documentElement.outerHTML], { type:'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  const who = (state.event.host || state.event.couple || 'Menu').replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_|_$/g, '');
+  a.href = URL.createObjectURL(blob); a.download = `Wedding_Menu_${who}.html`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', ev => {
+  const t = ev.target.closest('[data-act],[data-view],[data-lang]'); if (!t) { if (ev.target.id === 'picker') closePicker(); return; }
+  if (t.dataset.view) return setView(t.dataset.view);
+  if (t.dataset.lang) { state.lang = t.dataset.lang; save(); renderMeals(); if (view === 'preview') renderSheet(); return; }
+  const mealEl = t.closest('.meal'), m = mealEl && state.meals.find(x => x.id === mealEl.dataset.id);
+  switch (t.dataset.act) {
+    case 'add-meal': {
+      const last = state.meals[state.meals.length - 1];
+      state.meals.push({ id:uid(), fn:last ? last.fn : -1, type:last ? Math.min(last.type + 1, CONFIG.mealTypes.length - 1) : 1, date:last ? last.date : '', guests:'', items:[] });
+      save(); renderMeals(); document.querySelector('.meal:last-child').scrollIntoView({ behavior:'smooth', block:'center' }); break; }
+    case 'del-meal':
+      if (!m.items.length || confirm('यह भोजन हटाएं? · Remove this meal?')) { state.meals = state.meals.filter(x => x !== m); save(); renderMeals(); } break;
+    case 'del-item': m.items.splice(+t.dataset.k, 1); save(); renderMeals(); break;
+    case 'pick': openPicker(m.id); break;
+    case 'reset':
+      if (confirm('पूरा मेनू हटाकर नया शुरू करें? · Clear everything and start a new menu?')) { state = blankState(); save(); renderMeals(); window.scrollTo(0, 0); } break;
+    case 'pk-close': closePicker(); break;
+    case 'pk-cat': pk.cat = t.dataset.c; pk.q = ''; $('#pk-q').value = ''; renderPicker(); $('#pk-list').scrollTop = 0; break;
+    case 'pk-toggle': {
+      const pm = pkMeal(), c = CONFIG.categories.find(x => x.key === t.dataset.c), d = c.dishes[+t.dataset.i], at = has(pm, c.key, d);
+      at > -1 ? pm.items.splice(at, 1) : pm.items.push({ c:c.key, hi:d[0], en:d[1] });
+      save(); const sc = $('#pk-list').scrollTop; renderPicker(); $('#pk-list').scrollTop = sc; break; }
+    case 'pk-untoggle': pkMeal().items.splice(+t.dataset.k, 1); save(); renderPicker(); break;
+    case 'pk-add': addCustom(); break;
+    case 'wa': sendWhatsApp(); break;
+    case 'pdf': setView('preview'); setTimeout(() => window.print(), 250); break;
+    case 'save-copy': saveCopy(); break;
+  }
+});
+function addCustom(){
+  const v = $('#pk-new').value.trim(); if (!v) return;
+  pkMeal().items.push({ c:pk.cat, hi:v, en:v });
+  $('#pk-new').value = ''; pk.q = ''; $('#pk-q').value = ''; save(); renderPicker();
+  $('#pk-list').scrollTop = $('#pk-list').scrollHeight;
+}
+document.addEventListener('input', ev => {
+  const el = ev.target;
+  if (el.dataset.ev) { state.event[el.dataset.ev] = el.value; save(); return; }
+  if (el.id === 'pk-q') { pk.q = el.value; renderPicker(); return; }
+  if (el.dataset.f) {
+    const m = state.meals.find(x => x.id === el.closest('.meal').dataset.id);
+    m[el.dataset.f] = (el.dataset.f === 'fn' || el.dataset.f === 'type') ? +el.value : el.value; save();
+  }
+});
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Enter' && ev.target.id === 'pk-new') { ev.preventDefault(); addCustom(); }
+  if (ev.key === 'Escape') closePicker();
+});
+window.addEventListener('beforeprint', renderSheet);
+
+/* ---------- start ---------- */
+state = load();
+renderBrand(); renderMeals(); save(); setView('edit');
+</script>
+</body>
+</html>
